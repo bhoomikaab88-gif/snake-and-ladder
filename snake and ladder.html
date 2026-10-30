@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snake and Ladder Game</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background: #eaf6ff;
+        }
+
+        h1 {
+            color: darkblue;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(10, 45px);
+            width: 450px;
+            margin: 20px auto;
+        }
+
+        .cell {
+            height: 45px;
+            border: 1px solid black;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 13px;
+            position: relative;
+        }
+
+        .snake {
+            background: #ff9999;
+        }
+
+        .ladder {
+            background: #99ff99;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: blue;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: darkblue;
+        }
+
+        #dice {
+            font-size: 35px;
+            margin: 10px;
+        }
+
+        #message {
+            font-size: 20px;
+            color: darkgreen;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🐍 Snake and Ladder 🎲</h1>
+
+    <h3>Player 1 🔴 | Player 2 🔵</h3>
+
+    <div id="board"></div>
+
+    <h2 id="turn">Player 1's Turn</h2>
+
+    <div id="dice">🎲</div>
+
+    <button onclick="rollDice()">Roll Dice</button>
+
+    <button onclick="restartGame()">Restart</button>
+
+    <p id="message">Let's Start the Game!</p>
+
+    <script>
+
+        const board = document.getElementById("board");
+
+        let positions = [0, 0];
+        let player = 0;
+        let gameOver = false;
+
+        const snakes = {
+            99: 54,
+            70: 55,
+            52: 42,
+            25: 2,
+            95: 72
+        };
+
+        const ladders = {
+            6: 25,
+            11: 40,
+            17: 69,
+            46: 90,
+            60: 85
+        };
+
+        function createBoard() {
+            board.innerHTML = "";
+
+            for (let row = 9; row >= 0; row--) {
+                let numbers = [];
+
+                for (let col = 1; col <= 10; col++) {
+                    numbers.push(row * 10 + col);
+                }
+
+                if (row % 2 === 1) {
+                    numbers.reverse();
+                }
+
+                numbers.forEach(num => {
+                    let cell = document.createElement("div");
+                    cell.className = "cell";
+
+                    if (snakes[num]) {
+                        cell.classList.add("snake");
+                    }
+
+                    if (ladders[num]) {
+                        cell.classList.add("ladder");
+                    }
+
+                    let text = num;
+
+                    if (snakes[num]) text += " 🐍";
+                    if (ladders[num]) text += " 🪜";
+
+                    if (positions[0] === num) text += " 🔴";
+                    if (positions[1] === num) text += " 🔵";
+
+                    cell.innerHTML = text;
+                    board.appendChild(cell);
+                });
+            }
+        }
+
+        function rollDice() {
+            if (gameOver) return;
+
+            let dice = Math.floor(Math.random() * 6) + 1;
+
+            document.getElementById("dice").innerHTML =
+                "🎲 " + dice;
+
+            let newPosition = positions[player] + dice;
+
+            if (newPosition <= 100) {
+                positions[player] = newPosition;
+
+                if (snakes[newPosition]) {
+                    positions[player] = snakes[newPosition];
+
+                    document.getElementById("message").innerHTML =
+                        "🐍 Oh no! Snake bites! Go down!";
+                }
+
+                else if (ladders[newPosition]) {
+                    positions[player] = ladders[newPosition];
+
+                    document.getElementById("message").innerHTML =
+                        "🪜 Great! Climb the ladder!";
+                }
+
+                else {
+                    document.getElementById("message").innerHTML =
+                        "You rolled " + dice;
+                }
+            }
+
+            if (positions[player] === 100) {
+                document.getElementById("message").innerHTML =
+                    "🏆 Player " + (player + 1) + " Wins!";
+
+                gameOver = true;
+                createBoard();
+                return;
+            }
+
+            player = 1 - player;
+
+            document.getElementById("turn").innerHTML =
+                "Player " + (player + 1) + "'s Turn";
+
+            createBoard();
+        }
+
+        function restartGame() {
+            positions = [0, 0];
+            player = 0;
+            gameOver = false;
+
+            document.getElementById("turn").innerHTML =
+                "Player 1's Turn";
+
+            document.getElementById("dice").innerHTML = "🎲";
+
+            document.getElementById("message").innerHTML =
+                "Let's Start the Game!";
+
+            createBoard();
+        }
+
+        createBoard();
+
+    </script>
+
+</body>
+</html>
